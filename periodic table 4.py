@@ -1,332 +1,189 @@
 import streamlit as st
 import random
 
-import streamlit as st
-import random
-
-# --- CSS Global: set body background & bersihkan panel supaya transparan ---
-st.markdown("""
-<style>
-  /* Pasang gambar di seluruh body */
-  body {
-    background: url('https://images.unsplash.com/photo-1592928832749-b90e32bc4fd9?auto=format&fit=crop&w=1600&q=80')
-      no-repeat center center fixed !important;
-    background-size: cover !important;
-  }
-  /* Buat container utama jadi transparan */
-  [data-testid="stAppViewContainer"],
-  [data-testid="stAppViewContainer"] > .css-18e3th9 {
-    background: transparent !important;
-  }
-  /* Buat sidebar juga transparan */
-  .css-1d391kg {
-    background: transparent !important;
-  }
-
-  /* Styling kartu soal tetap semi-putih */
-  .question-card {
-      background: rgba(255, 255, 255, 0.85) !important;
-      padding: 20px !important;
-      border-radius: 15px !important;
-      color: #000 !important;
-      margin-bottom: 20px !important;
-      box-shadow: 2px 2px 15px rgba(0,0,0,0.3) !important;
-  }
-
-  /* Kotak skor gelap agar kontras */
-  .score-box {
-      background: rgba(0,0,0,0.6) !important;
-      color: white !important;
-      padding: 10px !important;
-      border-radius: 10px !important;
-      text-align: center !important;
-      margin-top: 15px !important;
-  }
-
-  /* Input putih teks hitam */
-  .stTextInput > div > div > input {
-      background-color: white !important;
-      color: black !important;
-  }
-
-  /* Tombol gradien */
-  .stButton > button {
-      background: linear-gradient(to right, #00c6ff, #0072ff) !important;
-      color: white !important;
-      padding: 10px 20px !important;
-      border-radius: 8px !important;
-      border: none !important;
-  }
-  .stButton > button:hover {
-      filter: brightness(1.1) !important;
-  }
-</style>
-""", unsafe_allow_html=True)
-
-# --- Sidebar & Data Soal ---
+# --- Sidebar untuk memilih game ---
 st.sidebar.title("🎮 Pilih Game")
 selected_game = st.sidebar.radio("Pilih Game", ["Kuis Tabel Periodik", "Kuis Kimia Organik"])
 
-periodic_questions = [
-    {"name":"hidrogen","symbol":"H","number":1,"group":1,"period":1},
-    {"name":"helium","symbol":"He","number":2,"group":18,"period":1},
-    {"name":"litium","symbol":"Li","number":3,"group":1,"period":2},
-    {"name":"berilium","symbol":"Be","number":4,"group":2,"period":2},
-    {"name":"oksigen","symbol":"O","number":8,"group":16,"period":2},
-]
-organic_questions = [
-    {"question":"Apa rumus molekul dari metana?","answer":"CH4"},
-    {"question":"Apa gugus fungsi dari alkohol?","answer":"OH"},
-    {"question":"Apa nama senyawa CH3COOH?","answer":"Asam asetat"},
-    {"question":"Apa rumus dari etena?","answer":"C2H4"},
-    {"question":"Apa nama senyawa CH3CH2CH2OH?","answer":"Propanol"},
-]
-
-# ===== Kuis Tabel Periodik =====
-if selected_game == "Kuis Tabel Periodik":
-    for k,v in [("score",0),("qn",0),("cur",None),("fb",""),("ans",False)]:
-        if k not in st.session_state: st.session_state[k]=v
-
-    st.title("🧪 Kuis Tabel Periodik")
-    st.progress(st.session_state.qn/5)
-
-    def nxt():
-        e=random.choice(periodic_questions)
-        t=random.choice(["symbol","number","group","period"])
-        return {"e":e,"t":t}
-
-    if st.session_state.qn<5:
-        if st.session_state.cur is None:
-            st.session_state.cur=nxt(); st.session_state.ans=False
-
-        e=st.session_state.cur["e"]; t=st.session_state.cur["t"]
-        txt,ans = {
-          "symbol":(f"Apa simbol {e['name'].capitalize()}?",e["symbol"]),
-          "number":(f"Nomor atom {e['name'].capitalize()}?",str(e["number"])),
-          "group":(f"Golongan {e['name'].capitalize()}?",str(e["group"])),
-          "period":(f"Periode {e['name'].capitalize()}?",str(e["period"]))
-        }[t]
-
-        st.markdown('<div class="question-card">',unsafe_allow_html=True)
-        st.subheader(f"Soal #{st.session_state.qn+1}")
-        ui=st.text_input(txt,key=f"in_{st.session_state.qn}")
-        if st.button("Kirim Jawaban") and not st.session_state.ans:
-            if ui.strip().lower()==ans.lower():
-                st.session_state.score+=1; st.session_state.fb="✅ Benar!"; st.balloons()
-            else:
-                st.session_state.fb=f"❌ Salah, jawaban: *{ans}*"
-            st.session_state.ans=True
-        st.write(st.session_state.fb)
-        if st.session_state.ans and st.button("➡️ Lanjut"):
-            st.session_state.qn+=1; st.session_state.cur=None; st.session_state.fb=""; st.session_state.ans=False
-        st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown(f'<div class="score-box">Skor: {st.session_state.score}/5</div>',unsafe_allow_html=True)
-    else:
-        st.success(f"🎉 Selesai! Skor akhir: {st.session_state.score}/5")
-        if st.button("🔁 Ulangi"):
-            for k in ["score","qn","cur","fb","ans"]: del st.session_state[k]
-
-# ===== Kuis Kimia Organik =====
-else:
-    st.title("🧬 Kuis Kimia Organik")
-    for k,v in [("oi",0),("os",0),("of",""),("oa",False)]:
-        if k not in st.session_state: st.session_state[k]=v
-
-    if st.session_state.oi<5:
-        q=organic_questions[st.session_state.oi]
-        st.markdown('<div class="question-card">',unsafe_allow_html=True)
-        ua=st.text_input(q["question"],key=f"o_{st.session_state.oi}")
-        if st.button("Kirim Jawaban") and not st.session_state.oa:
-            if ua.strip().lower()==q["answer"].lower():
-                st.session_state.os+=1; st.session_state.of="✅ Benar!"; st.balloons()
-            else:
-                st.session_state.of=f"❌ Salah, jawaban: *{q['answer']}*"
-            st.session_state.oa=True
-        st.write(st.session_state.of)
-        if st.session_state.oa and st.button("➡️ Lanjut"):
-            st.session_state.oi+=1; st.session_state.of=""; st.session_state.oa=False
-        st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown(f'<div class="score-box">Skor: {st.session_state.os}/5</div>',unsafe_allow_html=True)
-    else:
-        st.success(f"🎉 Selesai! Skor akhir: {st.session_state.os}/5")
-        if st.button("🔁 Ulangi"):
-            for k in ["oi","os","of","oa"]: del st.session_state[k]
-
-# --- Pilih game di sidebar ---
-st.sidebar.title("🎮 Pilih Game")
-selected_game = st.sidebar.radio("Pilih Game", ["Kuis Tabel Periodik", "Kuis Kimia Organik"])
-
-# --- CSS untuk background gambar dan transparansi konten ---
+# --- Styling aesthetic & background gradient ---
 st.markdown("""
     <style>
-    /* Background gambar pada seluruh aplikasi */
-    [data-testid="stAppViewContainer"] {
-        background-image: url("https://images.unsplash.com/photo-1592928832749-b90e32bc4fd9?auto=format&fit=crop&w=1600&q=80");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-    /* Buat semua panel konten transparan agar background terlihat */
-    [data-testid="stAppViewContainer"] .main {
-        background-color: transparent !important;
-    }
-    [data-testid="stAppViewContainer"] .css-1d391kg, /* block-container */
-    [data-testid="stAppViewContainer"] .css-18e3th9 { /* app view container inner */
-        background-color: transparent !important;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
 
-    /* Styling kartu soal */
+    .stApp {
+        background: linear-gradient(to right, #f8cdda, #1d2b64);
+        background-attachment: fixed;
+        color: white;
+    }
     .question-card {
-        background: rgba(255,255,255,0.85);
-        padding: 20px;
-        border-radius: 15px;
-        color: #000;
-        margin-bottom: 20px;
-        box-shadow: 2px 2px 15px rgba(0,0,0,0.3);
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(15px);
+        padding: 25px; border-radius: 20px;
+        box-shadow: 4px 4px 30px rgba(0,0,0,0.2);
+        margin-bottom: 25px;
+        animation: fadeIn 1s ease-in-out;
+        color: #fff;
     }
-    /* Styling kotak skor */
     .score-box {
-        background: rgba(0,0,0,0.6);
-        color: white;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        margin-top: 15px;
+        background: rgba(0,0,0,0.25);
+        backdrop-filter: blur(10px);
+        padding: 15px; border-radius: 12px;
+        font-size: 18px; font-weight: 600;
+        text-align: center; color: white;
+        margin-top: 10px;
     }
-    /* Input putih dengan teks hitam */
-    .stTextInput > div > div > input {
-        background-color: white !important;
-        color: black !important;
-    }
-    /* Tombol custom */
     .stButton>button {
-        background: linear-gradient(to right, #00c6ff, #0072ff);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        border: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; padding: 10px 24px;
+        border-radius: 10px; border: none;
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.1); transform: scale(1.03);
+    }
+    .stTextInput>div>div>input {
+        background-color: #fff !important;
+        color: #000 !important;
+        border: 1px solid #ccc; border-radius: 10px;
+    }
+    @keyframes fadeIn {
+        from {opacity:0; transform:translateY(20px);}
+        to {opacity:1; transform:translateY(0);}
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Data soal ---
-periodic_questions = [
-    {"name":"hidrogen","symbol":"H","number":1,"group":1,"period":1},
-    {"name":"helium","symbol":"He","number":2,"group":18,"period":1},
-    {"name":"litium","symbol":"Li","number":3,"group":1,"period":2},
-    {"name":"berilium","symbol":"Be","number":4,"group":2,"period":2},
-    {"name":"oksigen","symbol":"O","number":8,"group":16,"period":2},
-]
-organic_questions = [
-    {"question":"Apa rumus molekul dari metana?","answer":"CH4"},
-    {"question":"Apa gugus fungsi dari alkohol?","answer":"OH"},
-    {"question":"Apa nama senyawa CH3COOH?","answer":"Asam asetat"},
-    {"question":"Apa rumus dari etena?","answer":"C2H4"},
-    {"question":"Apa nama senyawa CH3CH2CH2OH?","answer":"Propanol"},
-]
+# === GAME 1: Kuis Tabel Periodik (5 soal) ===
+NUM_PT = 5
 
-# ===== Kuis Tabel Periodik =====
 if selected_game == "Kuis Tabel Periodik":
-    # session state init
-    for k,v in [("score",0),("question_num",0),("current",None),("feedback",""),("answered",False)]:
-        if k not in st.session_state:
-            st.session_state[k] = v
+    st.title("🧪 Kuis Tabel Periodik Unsur")
 
-    st.title("🧪 Kuis Tabel Periodik")
-    st.progress(st.session_state.question_num/5)
+    periodic_table = [
+        {"name":"hidrogen","symbol":"H","number":1,"group":1,"period":1},
+        {"name":"helium","symbol":"He","number":2,"group":18,"period":1},
+        {"name":"litium","symbol":"Li","number":3,"group":1,"period":2},
+        {"name":"berilium","symbol":"Be","number":4,"group":2,"period":2},
+        {"name":"karbon","symbol":"C","number":6,"group":14,"period":2},
+        {"name":"oksigen","symbol":"O","number":8,"group":16,"period":2},
+        {"name":"natrium","symbol":"Na","number":11,"group":1,"period":3},
+        {"name":"kalsium","symbol":"Ca","number":20,"group":2,"period":4},
+    ]
 
-    def next_q():
-        elm = random.choice(periodic_questions)
-        typ = random.choice(["symbol","number","group","period"])
-        return {"elm":elm,"type":typ}
+    # Initialize session state
+    if "pt_score" not in st.session_state:
+        st.session_state.pt_score = 0
+        st.session_state.pt_index = 0
+        st.session_state.pt_q = None
+        st.session_state.pt_feedback = ""
+        st.session_state.pt_answered = False
 
-    if st.session_state.question_num<5:
-        if st.session_state.current is None:
-            st.session_state.current = next_q()
-            st.session_state.answered = False
+    # Progress bar
+    st.progress(st.session_state.pt_index / NUM_PT)
 
-        q = st.session_state.current
-        e = q["elm"]
-        mapping = {
-            "symbol": (f"Apa simbol dari unsur {e['name'].capitalize()}?", e["symbol"]),
-            "number": (f"Berapa nomor atom dari {e['name'].capitalize()}?", str(e["number"])),
-            "group":  (f"Golongan berapa unsur {e['name'].capitalize()}?", str(e["group"])),
-            "period": (f"Periode berapa unsur {e['name'].capitalize()}?", str(e["period"]))
-        }
-        text,ans = mapping[q["type"]]
+    def new_pt_q():
+        el = random.choice(periodic_table)
+        typ = random.choice(["symbol", "number", "group", "period"])
+        return {"el": el, "type": typ}
 
-        st.markdown('<div class="question-card">',unsafe_allow_html=True)
-        st.subheader(f"Soal #{st.session_state.question_num+1}")
-        user=st.text_input(text,key=f"in_{st.session_state.question_num}")
-        if st.button("Kirim Jawaban") and not st.session_state.answered:
-            if user.strip().lower()==ans.lower():
-                st.session_state.score+=1
-                st.session_state.feedback="✅ Benar!"
+    if st.session_state.pt_index < NUM_PT:
+        if st.session_state.pt_q is None:
+            st.session_state.pt_q = new_pt_q()
+            st.session_state.pt_answered = False
+
+        q = st.session_state.pt_q
+        e = q["el"]
+        if q["type"] == "symbol":
+            text = f"🧪 Apa simbol dari unsur *{e['name'].capitalize()}*?"
+            ans = e["symbol"]
+        elif q["type"] == "number":
+            text = f"🔢 Berapa nomor atom dari *{e['name'].capitalize()}*?"
+            ans = str(e["number"])
+        elif q["type"] == "group":
+            text = f"📚 Golongan berapa unsur *{e['name'].capitalize()}*?"
+            ans = str(e["group"])
+        else:
+            text = f"📏 Periode berapa unsur *{e['name'].capitalize()}*?"
+            ans = str(e["period"])
+
+        st.markdown('<div class="question-card">', unsafe_allow_html=True)
+        st.subheader(f"Soal #{st.session_state.pt_index+1} dari {NUM_PT}")
+        user = st.text_input(text, key=f"pt_in_{st.session_state.pt_index}")
+
+        if st.button("Kirim Jawaban", key=f"pt_sub_{st.session_state.pt_index}") and not st.session_state.pt_answered:
+            if user.strip().lower() == ans.lower():
+                st.session_state.pt_score += 1
+                st.session_state.pt_feedback = "✅ Jawaban Benar!"
                 st.balloons()
             else:
-                st.session_state.feedback=f"❌ Salah. Jawaban: *{ans}*"
-            st.session_state.answered=True
-        st.write(st.session_state.feedback)
-        if st.session_state.answered and st.button("➡️ Lanjut"):
-            st.session_state.question_num+=1
-            st.session_state.current=None
-            st.session_state.feedback=""
-            st.session_state.answered=False
-        st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown(f'<div class="score-box">Skor: {st.session_state.score}/5</div>',unsafe_allow_html=True)
+                st.session_state.pt_feedback = f"❌ Salah. Jawaban benar: *{ans}*"
+            st.session_state.pt_answered = True
+
+        st.write(st.session_state.pt_feedback)
+
+        if st.session_state.pt_answered:
+            if st.button("➡️ Soal Berikutnya", key=f"pt_next_{st.session_state.pt_index}"):
+                st.session_state.pt_index += 1
+                st.session_state.pt_q = None
+                st.session_state.pt_feedback = ""
+                st.session_state.pt_answered = False
+
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"<div class='score-box'>🌟 Skor: {st.session_state.pt_score}/{NUM_PT}</div>", unsafe_allow_html=True)
+
     else:
-        st.success(f"🎉 Selesai! Skor akhir: {st.session_state.score}/5")
-        if st.button("🔁 Ulangi"):
-            for k in ["score","question_num","current","feedback","answered"]:
+        st.success(f"🎉 Kuis selesai! Skor akhir: {st.session_state.pt_score}/{NUM_PT}")
+        if st.button("🔁 Ulangi Kuis"):
+            for k in ["pt_score", "pt_index", "pt_q", "pt_feedback", "pt_answered"]:
                 del st.session_state[k]
 
-# ===== Kuis Kimia Organik =====
-else:
-    st.title("🧬 Kuis Kimia Organik")
-    # session state init
-    for k,v in [("org_i",0),("org_score",0),("org_fb",""),("org_ans",False)]:
-        if k not in st.session_state:
-            st.session_state[k]=v
+# === GAME 2: Kuis Kimia Organik (5 soal) ===
+elif selected_game == "Kuis Kimia Organik":
+    st.title("🧪 Kuis Kimia Organik")
 
-    if st.session_state.org_i < 5:
-        q=organic_questions[st.session_state.org_i]
-        st.markdown('<div class="question-card">',unsafe_allow_html=True)
-        ua=st.text_input(q["question"],key=f"o_{st.session_state.org_i}")
-        if st.button("Kirim Jawaban") and not st.session_state.org_ans:
-            if ua.strip().lower()==q["answer"].lower():
-                st.session_state.org_score+=1
-                st.session_state.org_fb="✅ Benar!"
+    organic_questions = [
+        {"q":"Apa rumus molekul dari metana?","a":"CH4"},
+        {"q":"Apa gugus fungsi dari alkohol?","a":"OH"},
+        {"q":"Apa nama senyawa CH3COOH?","a":"Asam asetat"},
+        {"q":"Apa nama senyawa dengan rumus C2H5OH?","a":"Etanol"},
+        {"q":"Apa nama senyawa C6H6?","a":"Benzena"},
+    ]
+
+    if "org_score" not in st.session_state:
+        st.session_state.org_score = 0
+        st.session_state.org_index = 0
+        st.session_state.org_feedback = ""
+        st.session_state.org_answered = False
+
+    if st.session_state.org_index < len(organic_questions):
+        q = organic_questions[st.session_state.org_index]
+        st.markdown('<div class="question-card">', unsafe_allow_html=True)
+        st.subheader(f"Soal #{st.session_state.org_index+1} dari {len(organic_questions)}")
+        ans_in = st.text_input(f"🔬 {q['q']}", key=f"org_in_{st.session_state.org_index}")
+
+        if st.button("Kirim Jawaban", key=f"org_sub_{st.session_state.org_index}") and not st.session_state.org_answered:
+            if ans_in.strip().lower() == q['a'].lower():
+                st.session_state.org_score += 1
+                st.session_state.org_feedback = "✅ Jawaban Benar!"
                 st.balloons()
             else:
-                st.session_state.org_fb=f"❌ Salah. Jawaban: *{q['answer']}*"
-            st.session_state.org_ans=True
-        st.write(st.session_state.org_fb)
-        if st.session_state.org_ans and st.button("➡️ Lanjut"):
-            st.session_state.org_i+=1
-            st.session_state.org_fb=""
-            st.session_state.org_ans=False
-        st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown(f'<div class="score-box">Skor: {st.session_state.org_score}/5</div>',unsafe_allow_html=True)
+                st.session_state.org_feedback = f"❌ Salah. Jawaban benar: *{q['a']}*"
+            st.session_state.org_answered = True
+
+        st.write(st.session_state.org_feedback)
+
+        if st.session_state.org_answered:
+            if st.button("➡️ Soal Berikutnya", key=f"org_next_{st.session_state.org_index}"):
+                st.session_state.org_index += 1
+                st.session_state.org_feedback = ""
+                st.session_state.org_answered = False
+
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"<div class='score-box'>🌟 Skor: {st.session_state.org_score}/{len(organic_questions)}</div>", unsafe_allow_html=True)
+
     else:
-        st.success(f"🎉 Selesai! Skor akhir: {st.session_state.org_score}/5")
-        if st.button("🔁 Ulangi"):
-            for k in ["org_i","org_score","org_fb","org_ans"]:
+        st.success(f"🎉 Kuis selesai! Skor akhir: {st.session_state.org_score}/{len(organic_questions)}")
+        if st.button("🔁 Ulangi Kuis"):
+            for k in ["org_score", "org_index", "org_feedback", "org_answered"]:
                 del st.session_state[k]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
