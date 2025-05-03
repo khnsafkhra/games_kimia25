@@ -1,74 +1,99 @@
 import streamlit as st
 import random
 
-# Styling aesthetic background dengan gambar kimia dan teks input putih tulisannya hitam
+# Sidebar untuk memilih game
+st.sidebar.title("\U0001F3AE Pilih Game")
+selected_game = st.sidebar.radio("Pilih Game", ["Kuis Tabel Periodik", "Kuis Kimia Organik"])
+
+# Styling aesthetic modern dengan background gradien & input putih
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-    html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
+
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
 
     .stApp {
-        background-image: url('https://images.unsplash.com/photo-1581090700227-1e8a0c40a2c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-        background-size: cover;
-        background-position: center;
+        background: linear-gradient(135deg, #e0f7fa 0%, #e1bee7 100%);
         background-attachment: fixed;
-        color: white;
+        color: #333;
     }
+
     .question-card {
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(15px);
-        padding: 25px; border-radius: 20px;
-        box-shadow: 4px 4px 30px rgba(0,0,0,0.2);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.1);
         margin-bottom: 25px;
         animation: fadeIn 1s ease-in-out;
-        color: #fff;
+        color: #000;
     }
+
     .score-box {
-        background: rgba(0,0,0,0.35);
-        backdrop-filter: blur(10px);
-        padding: 15px; border-radius: 12px;
-        font-size: 18px; font-weight: 600;
-        text-align: center; color: white;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(5px);
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        color: #000;
         margin-top: 10px;
     }
+
     .stButton>button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white; padding: 10px 24px;
-        border-radius: 10px; border: none;
+        background: linear-gradient(135deg, #81d4fa 0%, #ba68c8 100%);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 10px;
+        border: none;
         transition: all 0.3s ease;
     }
+
     .stButton>button:hover {
-        filter: brightness(1.1); transform: scale(1.03);
+        filter: brightness(1.1);
+        transform: scale(1.03);
     }
+
     .stTextInput>div>div>input {
-        background-color: #fff !important;
-        color: #000 !important;
-        border: 1px solid #ccc; border-radius: 10px;
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+        border-radius: 10px;
     }
+
     @keyframes fadeIn {
-        from {opacity:0; transform:translateY(20px);}
-        to {opacity:1; transform:translateY(0);}
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.title("\U0001F3AE Pilih Game")
-selected_game = st.sidebar.radio("Pilih Game", ["Kuis Tabel Periodik", "Kuis Kimia Organik"])
-
-# Game 1: Kuis Tabel Periodik
+# Kuis Tabel Periodik
 if selected_game == "Kuis Tabel Periodik":
     st.title("\U0001F389 Kuis Tabel Periodik Unsur")
+
     periodic_table = [
         {"name": "hidrogen", "symbol": "H", "number": 1, "group": 1, "period": 1},
         {"name": "helium", "symbol": "He", "number": 2, "group": 18, "period": 1},
         {"name": "litium", "symbol": "Li", "number": 3, "group": 1, "period": 2},
         {"name": "berilium", "symbol": "Be", "number": 4, "group": 2, "period": 2},
         {"name": "karbon", "symbol": "C", "number": 6, "group": 14, "period": 2},
+        {"name": "oksigen", "symbol": "O", "number": 8, "group": 16, "period": 2},
+        {"name": "natrium", "symbol": "Na", "number": 11, "group": 1, "period": 3},
+        {"name": "kalsium", "symbol": "Ca", "number": 20, "group": 2, "period": 4},
+        {"name": "aluminium", "symbol": "Al", "number": 13, "group": 13, "period": 3},
+        {"name": "fluorin", "symbol": "F", "number": 9, "group": 17, "period": 2},
     ]
 
     for key, default in {
-        "score": 0, "question_num": 0, "current_question": None, "feedback": "", "answer_submitted": False
+        "score": 0,
+        "question_num": 0,
+        "current_question": None,
+        "feedback": "",
+        "answer_submitted": False
     }.items():
         if key not in st.session_state:
             st.session_state[key] = default
@@ -80,7 +105,7 @@ if selected_game == "Kuis Tabel Periodik":
         question_type = random.choice(["symbol", "number", "group", "period"])
         return {"element": element, "type": question_type}
 
-    if st.session_state.question_num < 5:
+    if st.session_state["question_num"] < 5:
         if st.session_state.current_question is None:
             st.session_state.current_question = generate_question()
             st.session_state.answer_submitted = False
@@ -108,13 +133,7 @@ if selected_game == "Kuis Tabel Periodik":
         if st.button("Kirim Jawaban") and not st.session_state.answer_submitted:
             if user_input.strip().lower() == correct_answer.lower():
                 st.session_state.score += 1
-                st.session_state.feedback = random.choice([
-                    "✅ Jawaban Benar! Hebat!",
-                    "\U0001F389 Mantap! Kamu benar!",
-                    "\U0001F525 Jawaban tepat! Good job!",
-                    "\U0001F4A1 Cerdas sekali!",
-                    "\U0001F44F Kamu jenius!"
-                ])
+                st.session_state.feedback = "✅ Jawaban Benar! Hebat!"
                 st.balloons()
             else:
                 st.session_state.feedback = f"❌ Salah. Jawaban yang benar: *{correct_answer}*"
@@ -130,22 +149,24 @@ if selected_game == "Kuis Tabel Periodik":
                 st.session_state.answer_submitted = False
 
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(f"<div class='score-box'>\U0001F31F Skor Sementara: {st.session_state.score}/5</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='score-box'>\U0001F31F Skor: {st.session_state.score}/5</div>", unsafe_allow_html=True)
+
     else:
         st.success(f"\U0001F389 Kuis selesai! Skor akhir kamu: {st.session_state.score}/5")
         if st.button("🔁 Main Lagi"):
             for key in ["score", "question_num", "current_question", "feedback", "answer_submitted"]:
                 del st.session_state[key]
 
-# Game 2: Kuis Kimia Organik
+# Kuis Kimia Organik
 elif selected_game == "Kuis Kimia Organik":
     st.title("\U0001F9EA Kuis Kimia Organik")
+
     questions = [
         {"question": "Apa rumus molekul dari metana?", "answer": "CH4"},
         {"question": "Apa gugus fungsi dari alkohol?", "answer": "OH"},
         {"question": "Apa nama senyawa CH3COOH?", "answer": "Asam asetat"},
-        {"question": "Apa nama senyawa dengan rumus C2H5OH?", "answer": "Etanol"},
-        {"question": "Apa rumus dari etena?", "answer": "C2H4"}
+        {"question": "Apa rumus dari etena?", "answer": "C2H4"},
+        {"question": "Apa nama senyawa CH3CH2CH2OH?", "answer": "Propanol"},
     ]
 
     if "organic_score" not in st.session_state:
@@ -177,11 +198,14 @@ elif selected_game == "Kuis Kimia Organik":
                 st.session_state.organic_submitted = False
         st.markdown('</div>', unsafe_allow_html=True)
 
+        st.markdown(f"<div class='score-box'>\U0001F31F Skor: {st.session_state.organic_score}/5</div>", unsafe_allow_html=True)
+
     else:
-        st.success(f"Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(questions)}")
+        st.success(f"\U0001F389 Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/5")
         if st.button("🔁 Ulangi"):
             for key in ["organic_score", "organic_index", "organic_feedback", "organic_submitted"]:
                 del st.session_state[key]
+
 
 
 
