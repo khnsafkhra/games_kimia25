@@ -195,3 +195,48 @@ elif selected_game == "Kuis Kimia Organik":
         if st.button("🔁 Ulangi"):
             for key in ["organic_score", "organic_index", "organic_feedback"]:
                 del st.session_state[key]
+
+# Game 2: Kuis Kimia Organik
+elif selected_game == "Kuis Kimia Organik":
+    st.title("🧪 Kuis Kimia Organik")
+
+    questions = [
+        {"question": "Apa rumus molekul dari metana?", "answer": "CH4"},
+        {"question": "Apa gugus fungsi dari alkohol?", "answer": "OH"},
+        {"question": "Apa nama senyawa CH3COOH?", "answer": "Asam asetat"},
+    ]
+
+    if "organic_score" not in st.session_state:
+        st.session_state.organic_score = 0
+        st.session_state.organic_index = 0
+        st.session_state.organic_feedback = ""
+        st.session_state.organic_submitted = False
+
+    if st.session_state.organic_index < len(questions):
+        q = questions[st.session_state.organic_index]
+        st.subheader(f"Soal #{st.session_state.organic_index + 1}")
+        user_answer = st.text_input(f"🔬 {q['question']}", key=f"organic_input_{st.session_state.organic_index}")
+
+        if st.button("Kirim Jawaban", key=f"submit_{st.session_state.organic_index}") and not st.session_state.organic_submitted:
+            if user_answer.strip().lower() == q["answer"].lower():
+                st.session_state.organic_score += 1
+                st.session_state.organic_feedback = "✅ Benar!"
+                st.balloons()
+            else:
+                st.session_state.organic_feedback = f"❌ Salah. Jawaban yang benar: *{q['answer']}*"
+            st.session_state.organic_submitted = True
+
+        st.write(st.session_state.organic_feedback)
+
+        if st.session_state.organic_submitted:
+            if st.button("➡️ Soal Berikutnya"):
+                st.session_state.organic_index += 1
+                st.session_state.organic_feedback = ""
+                st.session_state.organic_submitted = False
+
+        st.markdown(f"<div class='score-box'>🌟 Skor Sementara: {st.session_state.organic_score}/{len(questions)}</div>", unsafe_allow_html=True)
+    else:
+        st.success(f"Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(questions)}")
+        if st.button("🔁 Ulangi"):
+            for key in ["organic_score", "organic_index", "organic_feedback", "organic_submitted"]:
+                del st.session_state[key]
