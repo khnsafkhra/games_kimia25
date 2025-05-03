@@ -168,53 +168,35 @@ elif selected_game == "Kuis Kimia Organik":
         {"question": "Apa rumus molekul dari metana?", "answer": "CH4"},
         {"question": "Apa gugus fungsi dari alkohol?", "answer": "OH"},
         {"question": "Apa nama senyawa CH3COOH?", "answer": "Asam asetat"},
+        {"question": "Apa nama senyawa dengan rumus C2H5OH?", "answer": "Etanol"},
+        {"question": "Apa rumus molekul dari etena?", "answer": "C2H4"},
+        {"question": "Apa nama gugus fungsi dari aldehid?", "answer": "CHO"},
+        {"question": "Apa rumus dari asam benzoat?", "answer": "C6H5COOH"},
+        {"question": "Apa rumus struktur dari propana?", "answer": "C3H8"},
+        {"question": "Apa nama senyawa C3H6O yang merupakan keton?", "answer": "Aseton"},
+        {"question": "Apa nama gugus fungsi dari ester?", "answer": "COO"},
+        {"question": "Apa rumus molekul dari butana?", "answer": "C4H10"},
+        {"question": "Apa nama senyawa aromatik paling sederhana?", "answer": "Benzena"},
+        {"question": "Apa gugus fungsi dari amina?", "answer": "NH2"},
+        {"question": "Apa rumus molekul dari asam format?", "answer": "HCOOH"},
+        {"question": "Apa nama lain dari metanol?", "answer": "Alkohol metil"},
+        {"question": "Apa senyawa turunan alkana yang mengandung halogen?", "answer": "Haloalkana"},
+        {"question": "Apa rumus molekul dari propena?", "answer": "C3H6"},
+        {"question": "Apa nama senyawa dengan gugus eter?", "answer": "R-O-R"},
+        {"question": "Apa nama gugus fungsi dari amida?", "answer": "CONH2"},
+        {"question": "Apa rumus molekul dari etuna?", "answer": "C2H2"},
     ]
 
     if "organic_score" not in st.session_state:
         st.session_state.organic_score = 0
         st.session_state.organic_index = 0
         st.session_state.organic_feedback = ""
-        st.session_state.organic_done = False
-
-    if st.session_state.organic_index < len(questions):
-        q = questions[st.session_state.organic_index]
-        user_answer = st.text_input(f"🔬 {q['question']}", key="organic_input")
-
-        if st.button("Kirim Jawaban", key="organic_submit"):
-            if user_answer.strip().lower() == q["answer"].lower():
-                st.session_state.organic_score += 1
-                st.session_state.organic_feedback = "✅ Benar!"
-                st.balloons()
-            else:
-                st.session_state.organic_feedback = f"❌ Salah. Jawaban yang benar: *{q['answer']}*"
-            st.session_state.organic_index += 1
-
-        st.write(st.session_state.organic_feedback)
-    else:
-        st.success(f"Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(questions)}")
-        if st.button("🔁 Ulangi"):
-            for key in ["organic_score", "organic_index", "organic_feedback"]:
-                del st.session_state[key]
-
-# Game 2: Kuis Kimia Organik
-elif selected_game == "Kuis Kimia Organik":
-    st.title("🧪 Kuis Kimia Organik")
-
-    questions = [
-        {"question": "Apa rumus molekul dari metana?", "answer": "CH4"},
-        {"question": "Apa gugus fungsi dari alkohol?", "answer": "OH"},
-        {"question": "Apa nama senyawa CH3COOH?", "answer": "Asam asetat"},
-    ]
-
-    if "organic_score" not in st.session_state:
-        st.session_state.organic_score = 0
-        st.session_state.organic_index = 0
-        st.session_state.organic_feedback = ""
+        st.session_state.organic_input = ""
         st.session_state.organic_submitted = False
 
     if st.session_state.organic_index < len(questions):
         q = questions[st.session_state.organic_index]
-        st.subheader(f"Soal #{st.session_state.organic_index + 1}")
+        st.subheader(f"Soal #{st.session_state.organic_index + 1} dari {len(questions)}")
         user_answer = st.text_input(f"🔬 {q['question']}", key=f"organic_input_{st.session_state.organic_index}")
 
         if st.button("Kirim Jawaban", key=f"submit_{st.session_state.organic_index}") and not st.session_state.organic_submitted:
@@ -229,14 +211,16 @@ elif selected_game == "Kuis Kimia Organik":
         st.write(st.session_state.organic_feedback)
 
         if st.session_state.organic_submitted:
-            if st.button("➡️ Soal Berikutnya"):
+            if st.button("➡️ Soal Berikutnya", key=f"next_{st.session_state.organic_index}"):
                 st.session_state.organic_index += 1
                 st.session_state.organic_feedback = ""
                 st.session_state.organic_submitted = False
 
         st.markdown(f"<div class='score-box'>🌟 Skor Sementara: {st.session_state.organic_score}/{len(questions)}</div>", unsafe_allow_html=True)
+
     else:
-        st.success(f"Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(questions)}")
+        st.success(f"🎉 Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(questions)}")
         if st.button("🔁 Ulangi"):
-            for key in ["organic_score", "organic_index", "organic_feedback", "organic_submitted"]:
+            for key in ["organic_score", "organic_index", "organic_feedback", "organic_input", "organic_submitted"]:
                 del st.session_state[key]
+
