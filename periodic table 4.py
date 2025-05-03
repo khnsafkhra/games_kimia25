@@ -34,8 +34,8 @@ st.markdown("""
     }
 
     .stApp {
-        background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-        color: #333;
+        background: #ff4e4e;
+    color: white;
     }
 
     .question-card {
