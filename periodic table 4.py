@@ -62,8 +62,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Game 1: Kuis Tabel Periodik
+# ========== GAME 1 ==========
 if selected_game == "Kuis Tabel Periodik":
+    st.title("🧪 Kuis Tabel Periodik Unsur")
+
     periodic_table = [
         {"name": "hidrogen", "symbol": "H", "number": 1, "group": 1, "period": 1},
         {"name": "helium", "symbol": "He", "number": 2, "group": 18, "period": 1},
@@ -75,134 +77,48 @@ if selected_game == "Kuis Tabel Periodik":
         {"name": "kalsium", "symbol": "Ca", "number": 20, "group": 2, "period": 4},
     ]
 
-    for key, default in {
-        "score": 0,
-        "question_num": 0,
-        "current_question": None,
-        "feedback": "",
-        "answer_submitted": False
-    }.items():
+    for key in ["pt_score", "pt_index", "pt_question", "pt_feedback", "pt_answered"]:
         if key not in st.session_state:
-            st.session_state[key] = default
+            st.session_state[key] = 0 if "score" in key or "index" in key else None
 
-    st.title("🎉 Kuis Tabel Periodik Unsur")
-    progress = st.progress(st.session_state.question_num / 5)
-
-    def generate_question():
+    def get_pt_question():
         element = random.choice(periodic_table)
-        question_type = random.choice(["symbol", "number", "group", "period"])
-        return {"element": element, "type": question_type}
+        q_type = random.choice(["symbol", "number", "group", "period"])
+        return {"element": element, "type": q_type}
 
-    if st.session_state.question_num < 5:
-        if st.session_state.current_question is None:
-            st.session_state.current_question = generate_question()
-            st.session_state.answer_submitted = False
+    if st.session_state.pt_index < 5:
+        if not st.session_state.pt_question:
+            st.session_state.pt_question = get_pt_question()
+            st.session_state.pt_answered = False
 
-        q = st.session_state.current_question
+        q = st.session_state.pt_question
         e = q["element"]
-        correct_answer = ""
 
         if q["type"] == "symbol":
             question_text = f"🧪 Apa simbol dari unsur *{e['name'].capitalize()}*?"
-            correct_answer = e["symbol"]
+            correct = e["symbol"]
         elif q["type"] == "number":
             question_text = f"🔢 Berapa nomor atom dari *{e['name'].capitalize()}*?"
-            correct_answer = str(e["number"])
+            correct = str(e["number"])
         elif q["type"] == "group":
             question_text = f"📚 Golongan berapa unsur *{e['name'].capitalize()}*?"
-            correct_answer = str(e["group"])
-        elif q["type"] == "period":
+            correct = str(e["group"])
+        else:
             question_text = f"📏 Periode berapa unsur *{e['name'].capitalize()}*?"
-            correct_answer = str(e["period"])
+            correct = str(e["period"])
 
-        with st.container():
-            st.markdown('<div class="question-card">', unsafe_allow_html=True)
-            st.subheader(f"Soal #{st.session_state.question_num + 1}")
-            user_input = st.text_input(question_text, key=f"input_{st.session_state.question_num}")
-
-            if st.button("Kirim Jawaban") and not st.session_state.answer_submitted:
-                if user_input.strip().lower() == correct_answer.lower():
-                    st.session_state.score += 1
-                    st.session_state.feedback = random.choice([
-                        "✅ Jawaban Benar! Hebat!",
-                        "🎉 Mantap! Kamu benar!",
-                        "🔥 Jawaban tepat! Good job!",
-                        "💡 Cerdas sekali!",
-                        "👏 Kamu jenius!"
-                    ])
-                    st.balloons()
-                else:
-                    st.session_state.feedback = f"❌ Salah. Jawaban yang benar: *{correct_answer}*"
-                st.session_state.answer_submitted = True
-
-            st.write(st.session_state.feedback)
-
-            if st.session_state.answer_submitted:
-                if st.button("➡️ Soal Berikutnya"):
-                    st.session_state.question_num += 1
-                    st.session_state.current_question = None
-                    st.session_state.feedback = ""
-                    st.session_state.answer_submitted = False
-
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown(f"<div class='score-box'>🌟 Skor Sementara: {st.session_state.score}/5</div>", unsafe_allow_html=True)
-
-    else:
-        st.success(f"🎉 Kuis selesai! Skor akhir kamu: {st.session_state.score}/5")
-        if st.button("🔁 Main Lagi"):
-            for key in ["score", "question_num", "current_question", "feedback", "answer_submitted"]:
-                del st.session_state[key]
-
-# Game 2: Kuis Kimia Organik
-elif selected_game == "Kuis Kimia Organik":
-    st.title("🧪 Kuis Kimia Organik")
-
-    organic_questions = [
-        {"question": "Apa rumus molekul dari metana?", "answer": "CH4"},
-        {"question": "Apa gugus fungsi dari alkohol?", "answer": "OH"},
-        {"question": "Apa nama senyawa CH3COOH?", "answer": "Asam asetat"},
-        {"question": "Apa nama senyawa dengan rumus C2H5OH?", "answer": "Etanol"},
-        {"question": "Apa nama senyawa C6H6?", "answer": "Benzena"},
-    ]
-
-    if "organic_score" not in st.session_state:
-        st.session_state.organic_score = 0
-        st.session_state.organic_index = 0
-        st.session_state.organic_feedback = ""
-        st.session_state.organic_show_next = False
-
-    if st.session_state.organic_index < len(organic_questions):
-        q = organic_questions[st.session_state.organic_index]
         st.markdown('<div class="question-card">', unsafe_allow_html=True)
-        st.subheader(f"Soal #{st.session_state.organic_index + 1}")
-        user_answer = st.text_input(f"🔬 {q['question']}", key=f"organic_input_{st.session_state.organic_index}")
+        st.subheader(f"Soal #{st.session_state.pt_index + 1}")
+        answer = st.text_input(question_text, key=f"pt_input_{st.session_state.pt_index}")
 
-        if st.button("Kirim Jawaban", key=f"organic_submit_{st.session_state.organic_index}"):
-            if user_answer.strip().lower() == q["answer"].lower():
-                st.session_state.organic_score += 1
-                st.session_state.organic_feedback = "✅ Benar!"
+        if st.button("Kirim Jawaban", key=f"pt_submit_{st.session_state.pt_index}") and not st.session_state.pt_answered:
+            if answer.strip().lower() == correct.lower():
+                st.session_state.pt_score += 1
+                st.session_state.pt_feedback = "✅ Benar!"
                 st.balloons()
             else:
-                st.session_state.organic_feedback = f"❌ Salah. Jawaban yang benar: *{q['answer']}*"
-            st.session_state.organic_show_next = True
+                st.session_state.pt_feedback = f"❌ Salah. Jawaban benar:
 
-        st.write(st.session_state.organic_feedback)
-
-        if st.session_state.organic_show_next:
-            if st.button("➡️ Soal Berikutnya", key=f"organic_next_{st.session_state.organic_index}"):
-                st.session_state.organic_index += 1
-                st.session_state.organic_feedback = ""
-                st.session_state.organic_show_next = False
-
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(f"<div class='score-box'>🌟 Skor: {st.session_state.organic_score}/{len(organic_questions)}</div>", unsafe_allow_html=True)
-
-    else:
-        st.success(f"🎉 Kuis selesai! Skor akhir kamu: {st.session_state.organic_score}/{len(organic_questions)}")
-        if st.button("🔁 Ulangi Kuis"):
-            for key in ["organic_score", "organic_index", "organic_feedback", "organic_show_next"]:
-                del st.session_state[key]
 
 
 
