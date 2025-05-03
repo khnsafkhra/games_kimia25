@@ -58,9 +58,9 @@ st.markdown("""
     }
 
     .stTextInput>div>div>input {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        border: 1px solid #ccc;
+        background-color: #000;
+        color: #fff;
+        border: 1px solid #555;
         border-radius: 10px;
     }
 
@@ -222,6 +222,7 @@ elif selected_game == "Kuis Kimia Organik":
         if st.button("🔁 Ulangi"):
             for key in ["organic_score", "organic_index", "organic_feedback", "organic_submitted"]:
                 del st.session_state[key]
+
 
 
 
