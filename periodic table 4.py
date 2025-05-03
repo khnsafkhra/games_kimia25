@@ -1,6 +1,12 @@
 import streamlit as st
 import random
 
+# Menu navigasi game
+st.sidebar.title("🎮 Pilih Game")
+selected_game = st.sidebar.radio("Pilih jenis game:", [
+    "Kuis Tabel Periodik",
+    "Kuis Tata Nama Kimia Organik"
+    
 # Data unsur (dipangkas untuk contoh)
 periodic_table = [
     {"name": "hidrogen", "symbol": "H", "number": 1, "group": 1, "period": 1},
